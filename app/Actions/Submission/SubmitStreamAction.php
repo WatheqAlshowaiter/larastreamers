@@ -17,6 +17,6 @@ class SubmitStreamAction
             submittedByEmail: $submittedByEmail,
         );
 
-        Mail::to('christoph@christoph-rumpel.com')->queue(new StreamSubmittedMail($stream));
+        Mail::to('admin@gmail.com')->queue(new StreamSubmittedMail($stream));
     }
 }
