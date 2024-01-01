@@ -7,9 +7,23 @@ use Vinkla\Hashids\Facades\Hashids;
 
 it('shows only finished streams', function() {
     // Arrange
-    Stream::factory()->withChannel()->finished()->create(['title' => 'Finished stream']);
-    Stream::factory()->withChannel()->live()->create(['title' => 'Live stream']);
-    Stream::factory()->withChannel()->upcoming()->create(['title' => 'Upcoming stream']);
+    Stream::factory()
+        ->withChannel()
+        ->finished()
+        ->withTitle('Finished stream')
+        ->create();
+
+    Stream::factory()
+        ->withChannel()
+        ->live()
+        ->withTitle('Live stream')
+        ->create();
+
+    Stream::factory()
+        ->withChannel()
+        ->upcoming()
+        ->withTitle('Upcoming stream')
+        ->create();
 
     // Act & Assert
     $this->get(route('archive'))
@@ -18,11 +32,54 @@ it('shows only finished streams', function() {
         ->assertSee('Finished stream');
 });
 
+it('uses actual start time first for order if given', function() {
+    // Arrange
+    Stream::factory()
+        ->withChannel()
+        ->finished()
+        ->withScheduledStartTime(Carbon::now()->subDays(2))
+        ->withActualStartTime(Carbon::now()->subDays(1))
+        ->withTitle('Finished latest')
+        ->create();
+
+    Stream::factory()
+        ->withChannel()
+        ->finished()
+        ->withScheduledStartTime(Carbon::now()->subDays(1))
+        ->withActualStartTime(Carbon::now()->subDays(2))
+        ->withTitle('Finished oldest')
+        ->create();
+
+    // Act & Assert
+    $this->get(route('archive'))
+        ->assertSeeInOrder([
+            'Finished latest',
+            'Finished oldest',
+        ]);
+});
+
 it('orders streams from latest to oldest', function() {
     // Arrange
-    Stream::factory()->withChannel()->finished()->create(['title' => 'Finished one day ago', 'scheduled_start_time' => Carbon::yesterday()]);
-    Stream::factory()->withChannel()->finished()->create(['title' => 'Finished two days ago', 'scheduled_start_time' => Carbon::yesterday()->subDay()]);
-    Stream::factory()->withChannel()->finished()->create(['title' => 'Finished three days ago', 'scheduled_start_time' => Carbon::yesterday()->subDays(2)]);
+    Stream::factory()
+        ->withChannel()
+        ->finished()
+        ->withTitle('Finished one day ago')
+        ->withScheduledStartTime(Carbon::yesterday())
+        ->create();
+
+    Stream::factory()
+        ->withChannel()
+        ->finished()
+        ->withTitle('Finished two days ago')
+        ->withScheduledStartTime(Carbon::yesterday()->subDay())
+        ->create();
+
+    Stream::factory()
+        ->withChannel()
+        ->finished()
+        ->withTitle('Finished three days ago')
+        ->withScheduledStartTime(Carbon::yesterday()->subDays(2))
+        ->create();
 
     // Act & Assert
     $this->get(route('archive'))
@@ -38,12 +95,14 @@ it('does not show deleted streams', function() {
     Stream::factory()
         ->withChannel()
         ->deleted()
-        ->create(['title' => 'Stream deleted']);
+        ->withTitle('Stream deleted')
+        ->create();
 
     Stream::factory()
         ->withChannel()
         ->finished()
-        ->create(['title' => 'Stream finished']);
+        ->withTitle('Stream finished')
+        ->create();
 
     // Act & Assert
     $this
@@ -57,10 +116,9 @@ it('shows duration of stream if given', function() {
     Stream::factory()
         ->withChannel()
         ->finished()
-        ->create([
-            'actual_start_time' => Carbon::yesterday(),
-            'actual_end_time' => Carbon::yesterday()->addHour()->addMinutes(12),
-        ]);
+        ->withActualStartTime(Carbon::yesterday())
+        ->withActualEndTime(Carbon::yesterday()->addHour()->addMinutes(12))
+        ->create();
 
     // Act & Assert
     $this
@@ -70,9 +128,23 @@ it('shows duration of stream if given', function() {
 
 it('searches for streams on title', function() {
     // Arrange
-    Stream::factory()->withChannel()->finished()->create(['title' => 'Stream One']);
-    Stream::factory()->withChannel()->finished()->create(['title' => 'Stream Two']);
-    Stream::factory()->withChannel()->finished()->create(['title' => 'Stream Three']);
+    Stream::factory()
+        ->withChannel()
+        ->finished()
+        ->withTitle('Stream One')
+        ->create();
+
+    Stream::factory()
+        ->withChannel()
+        ->finished()
+        ->withTitle('Stream Two')
+        ->create();
+
+    Stream::factory()
+        ->withChannel()
+        ->finished()
+        ->withTitle('Stream Three')
+        ->create();
 
     // Act & Assert
     $this->get(route('archive', ['search' => 'three']))
@@ -90,17 +162,20 @@ it('searches for streams on channel title', function() {
     Stream::factory()
         ->finished()
         ->for($channelShown)
-        ->create(['title' => 'Stream Shown #1']);
+        ->withTitle('Stream Shown #1')
+        ->create();
 
     Stream::factory()
         ->finished()
         ->for($channelShown)
-        ->create(['title' => 'Stream Shown #2']);
+        ->withTitle('Stream Shown #2')
+        ->create();
 
     Stream::factory()
         ->finished()
         ->for(Channel::factory()->create(['name' => 'Channel Hidden']))
-        ->create(['title' => 'Stream Hidden']);
+        ->withTitle('Stream Hidden')
+        ->create();
 
     // Act & Assert
     $this->get(route('archive', ['search' => 'Channel Shown']))
@@ -114,10 +189,22 @@ it('searches for streams on channel title', function() {
         ]);
 });
 
-it('searches for streams by specific streamer', function() {
+it('searches
+ for streams by specific
+ ->$this->withTitle()
+  streamer', function() {
     // Arrange
-    Stream::factory()->withChannel()->finished()->create(['title' => 'Stream Shown']);
-    Stream::factory()->withChannel()->finished()->create(['title' => 'Stream Hidden']);
+    Stream::factory()
+        ->withChannel()
+        ->finished()
+        ->withTitle('Stream Shown')
+        ->create();
+
+    Stream::factory()
+        ->withChannel()
+        ->finished()
+        ->withTitle('Stream Hidden')
+        ->create();
 
     // Act & Assert
     $this->get(route('archive', ['streamer' => Hashids::encode(1)]))
@@ -128,8 +215,17 @@ it('searches for streams by specific streamer', function() {
 it('searches for streams by specific streamer and search term', function() {
     // Arrange
     $channel = Channel::factory()->create();
-    Stream::factory()->for($channel)->finished()->create(['title' => 'Stream Shown']);
-    Stream::factory()->for($channel)->finished()->create(['title' => 'Stream Hidden']);
+    Stream::factory()
+        ->for($channel)
+        ->finished()
+        ->withTitle('Stream Shown')
+        ->create();
+
+    Stream::factory()
+        ->for($channel)
+        ->finished()
+        ->withTitle('Stream Hidden')
+        ->create();
 
     // Act & Assert
     $this->get(route('archive', ['streamer' => '1', 'search' => 'Shown']))

@@ -134,12 +134,12 @@ class Stream extends Model implements Feedable
 
     public function scopeFromLatestToOldest(Builder $query): Builder
     {
-        return $query->orderByDesc('scheduled_start_time');
+        return $query->orderByRaw('COALESCE(actual_start_time, scheduled_start_time) DESC');
     }
 
     public function scopeFromOldestToLatest(Builder $query): Builder
     {
-        return $query->orderBy('scheduled_start_time');
+        return $query->orderByRaw('COALESCE(actual_start_time, scheduled_start_time) ASC');
     }
 
     public function scopeFinished(Builder $query): Builder

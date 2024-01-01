@@ -29,13 +29,21 @@ it('shows from closest to farthest', function() {
     // Arrange
     Stream::factory()
         ->withChannel()
-        ->create(['title' => 'Stream #1', 'scheduled_start_time' => Carbon::tomorrow()]);
+        ->withTitle('Stream #1')
+        ->withScheduledStartTime(Carbon::tomorrow())
+        ->create();
     Stream::factory()
         ->withChannel()
-        ->create(['title' => 'Stream #2', 'scheduled_start_time' => Carbon::tomorrow()->addDay()]);
+        ->withTitle('Stream #2')
+        ->withScheduledStartTime(Carbon::tomorrow()->addDay())
+        ->create();
     Stream::factory()
         ->withChannel()
-        ->create(['title' => 'Stream #3', 'scheduled_start_time' => Carbon::tomorrow()->addDays(2)]);
+        ->withTitle('Stream #3')
+        ->withScheduledStartTime(Carbon::tomorrow()->addDays(2))
+        ->create();
+
+    ray()->queries();
 
     // Act & Assert
     $this->get(route('home'))
