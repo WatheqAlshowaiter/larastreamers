@@ -19,7 +19,7 @@
         class="md:pl-24 px-6 flex flex-col justify-between items-start space-y-4 md:space-y-2 bg-gray-600 rounded-b-xl lg:rounded-xl">
 
         <header class="flex-1">
-            <h3 class="text-2xl font-bold tracking-tight ">
+            <h3 class="text-2xl font-bold tracking-tight">
                 <a title="Open on YouTube"
                    target="_blank"
                    href="{{ $stream->url() }}">
