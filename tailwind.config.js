@@ -1,4 +1,4 @@
-const defaultTheme = require('tailwindcss/defaultTheme');
+const defaultTheme = require('tailwindcss/defaultTheme')
 
 module.exports = {
     content: [
@@ -35,15 +35,9 @@ module.exports = {
                 lightest: '#f7f8fc',
             },
             black: {
-                DEFAULT: '#17181e'
-            }
-        }
-
+                DEFAULT: '#17181e',
+            },
+        },
     },
-
-    plugins: [
-        require('@tailwindcss/forms'),
-        require('@tailwindcss/typography'),
-        require('@tailwindcss/aspect-ratio'),
-    ],
-};
+    plugins: [require('@tailwindcss/forms'), require('@tailwindcss/typography'), require('@tailwindcss/aspect-ratio')],
+}
